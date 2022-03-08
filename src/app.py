@@ -1,11 +1,14 @@
-from flask import Flask
+from flask import Flask, render_template, request, url_for, redirect
 from flask_migrate import Migrate
 
 from src import routes, utils as u
 from src.models import db
 from src.settings import Settings as S
 from src.tasks import make_celery
+import io
 
+
+file_text = "def __init__(): self.number = 1"
 
 class Application:
 
@@ -42,6 +45,11 @@ class Application:
 
     def init_routes(self):
 
-        @self.flask_app.route('/')
-        def home(key):
-            return 'home'
+        @self.flask_app.route("/")
+        def index():
+            return render_template("base.html", file_text = file_text)
+
+        @self.flask_app.route("/process", methods=["POST"])
+        def process_code():
+            file_text = request.form["codeinput"]
+            return redirect(url_for("index"))
